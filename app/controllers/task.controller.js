@@ -1,12 +1,8 @@
 const db = require('../config/db.config.js');
-const config = require('../config/config.js');
 const Task = db.tasks;
 const TaskUser = db.task_user;
 
 const Op = db.Sequelize.Op;
-
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcryptjs');
 
 exports.createTask = (req, res) => {
 	var timeSplit = req.body.deadlineTime.split(":");
@@ -59,6 +55,41 @@ exports.getTasksByUserId = (req, res) => {
         console.log(tasks);
         res.send(tasks)
         
+    })
+}
+
+exports.updateTask = (req ,res) => {
+    var timeSplit = req.body.deadlineTime.split(":");
+    timeSplit[0] = Number(timeSplit[0]) + 1;
+    var time = timeSplit.join(":")
+    Task.find({
+        where: {
+            '$task.id$': req.params.id
+        },
+        include: [{
+            model: TaskUser,
+            required: false
+        }]
+    }).then(task => {
+        if(task) {
+            task.update({
+                'title': req.body.title,
+                'description': req.body.description,
+                'deadline': req.body.deadlineDate.split("/").reverse().join("-") + ' ' + time,
+                'status': req.body.status
+            }).then(task => {
+                res.send("Task updated");
+            })
+        } else {
+            res.status(404).json({
+                "error": "Task dont exists"
+            })
+        }
+    }).catch(err => {
+        res.status(500).json({
+			"description": "TTT",
+			"error": err
+		});
     })
 }
 
