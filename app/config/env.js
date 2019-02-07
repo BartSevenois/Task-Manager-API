@@ -1,8 +1,8 @@
 const env = {
-  database: 'task_manager',
-  username: 'root',
-  password: 'root',
-  host: 'localhost',
+  database: 'sql2277202',
+  username: 'sql2277202',
+  password: 'hC6%aY8!',
+  host: 'sql2.freesqldatabase.com',
   dialect: 'mysql',
   pool: {
 	  max: 5,
