@@ -4,27 +4,7 @@ const TaskUser = db.task_user;
 
 const Op = db.Sequelize.Op;
 
-exports.createTask = (req, res) => {
-	var timeSplit = req.body.deadlineTime.split(":");
-    timeSplit[0] = Number(timeSplit[0]) + 1;
-    var time = timeSplit.join(":")
-    task = {
-        'title': req.body.title,
-        'description': req.body.description,
-        'deadline': req.body.deadlineDate.split("/").reverse().join("-") + ' ' + time,
-        'status': req.body.status
-    }
-    Task.create(task).then(function (task) {
-   
-        relation = {
-            task_id: task.id,
-            user_id: req.body.userId
-        }
-        TaskUser.create(relation)
-        res.send("Task created")
-    })
-}
-
+// GET
 exports.getTaskById = (req, res) => {
 	Task.findAll({
         where: {
@@ -36,9 +16,18 @@ exports.getTaskById = (req, res) => {
             required: false
         }]
     }).then(tasks => {
-        console.log(tasks);
-        res.send(tasks)
+        if(tasks == '') {
+            res.status(404).json({
+                err: "Task not found!!!"
+            })
+        } else {
+            res.send(tasks)
+        }
         
+    }).catch(err => {
+        res.status(500).json({
+            err: err
+        })
     })
 }
 
@@ -54,14 +43,32 @@ exports.getTasksByUserId = (req, res) => {
     }).then(tasks => {
         console.log(tasks);
         res.send(tasks)
-        
+    })
+}
+
+// POST
+exports.createTask = (req, res) => {
+    var deadline = req.body.deadlineDate.split("/").reverse().join("-") + ' ' + req.body.deadlineTime + ':00';
+    task = {
+        'title': req.body.title,
+        'description': req.body.description,
+        'deadline': deadline,
+        'status': req.body.status
+    }
+    Task.create(task).then(function (task) {
+   
+        relation = {
+            task_id: task.id,
+            user_id: req.body.userId
+        }
+        TaskUser.create(relation)
+        res.send("Task created")
     })
 }
 
 exports.updateTask = (req ,res) => {
-    var timeSplit = req.body.deadlineTime.split(":");
-    timeSplit[0] = Number(timeSplit[0]) + 1;
-    var time = timeSplit.join(":")
+    var deadline = req.body.deadlineDate.split("/").reverse().join("-") + ' ' + req.body.deadlineTime + ':00';
+
     Task.find({
         where: {
             '$task.id$': req.params.id
@@ -75,7 +82,7 @@ exports.updateTask = (req ,res) => {
             task.update({
                 'title': req.body.title,
                 'description': req.body.description,
-                'deadline': req.body.deadlineDate.split("/").reverse().join("-") + ' ' + time,
+                'deadline': deadline,
                 'status': req.body.status
             }).then(task => {
                 res.send("Task updated");
@@ -93,3 +100,13 @@ exports.updateTask = (req ,res) => {
     })
 }
 
+// DELETE
+exports.delete = (req, res) => {
+    Task.destroy({
+        where: {
+            '$tasks.id$': req.params.id
+        }
+    }).then(task => {
+        res.send('Task deleted')
+    })
+}

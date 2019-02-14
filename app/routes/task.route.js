@@ -11,5 +11,7 @@ module.exports = function(app) {
     app.get('/api/task/:id', [authJwt.verifyToken], controller.getTaskById);
     app.get('/api/tasks/user/:id', [authJwt.verifyToken], controller.getTasksByUserId);
 
+    app.delete('/api/task/delete/:id', controller.delete)
+
 	
 }

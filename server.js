@@ -12,6 +12,8 @@ require('./app/routes/task.route.js')(app);
 // DB Connection
 const db = require('./app/config/db.config.js');
 const Role = db.role;
+const Task = db.tasks;
+const User = db.user;
 
 // db.sequelize.sync({ force: true }).then(() => {
 //     console.log('Drop and Resync with { force: true }');
@@ -26,6 +28,7 @@ var server = app.listen(8080, () => {
 })
 
 function initial() {
+
     Role.create({
         id: 1,
         name: "USER"
@@ -40,4 +43,12 @@ function initial() {
         id: 3,
         name: "PM"
     });
+
+    Task.create({
+        title: "First task",
+        description: "Task description",
+        deadline: "2019-04-20 10:00:00",
+        status: "not done"
+    })
+
 }
